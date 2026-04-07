@@ -14,7 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inventory: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          price: number
+          product_name: string
+          reorder_point: number
+          stock_level: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          price?: number
+          product_name: string
+          reorder_point?: number
+          stock_level?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          price?: number
+          product_name?: string
+          reorder_point?: number
+          stock_level?: number
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          revenue: number
+          sale_date: string
+          units_sold: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          revenue?: number
+          sale_date?: string
+          units_sold?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          revenue?: number
+          sale_date?: string
+          units_sold?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
