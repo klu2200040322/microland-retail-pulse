@@ -83,7 +83,10 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full gradient-primary opacity-5 blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full gradient-accent opacity-5 blur-3xl translate-y-1/2 -translate-x-1/2" />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary flex items-center justify-center">

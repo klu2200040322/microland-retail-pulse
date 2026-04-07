@@ -8,9 +8,7 @@ export default {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
       colors: {
@@ -82,18 +80,33 @@ export default {
         },
         "pulse-soft": {
           "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.7" },
+          "50%": { opacity: "0.6" },
         },
         "slide-up": {
-          from: { transform: "translateY(10px)", opacity: "0" },
+          from: { transform: "translateY(16px)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "scale-in": {
+          from: { transform: "scale(0.95)", opacity: "0" },
+          to: { transform: "scale(1)", opacity: "1" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
-        "slide-up": "slide-up 0.3s ease-out",
+        "slide-up": "slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-in": "fade-in 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
+        shimmer: "shimmer 2s linear infinite",
       },
     },
   },
