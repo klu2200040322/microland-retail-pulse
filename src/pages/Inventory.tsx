@@ -40,6 +40,22 @@ export default function Inventory() {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Check if user is admin
+  const { data: isAdmin } = useQuery({
+    queryKey: ["user-role", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin");
+      return (data && data.length > 0) || false;
+    },
+    enabled: !!user,
+  });
 
   const { data: inventory, isLoading } = useQuery({
     queryKey: ["inventory"],
