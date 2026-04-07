@@ -1,6 +1,8 @@
-import { LayoutDashboard, Package, TrendingUp, Settings } from "lucide-react";
+import { LayoutDashboard, Package, TrendingUp, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -25,6 +28,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { signOut, user } = useAuth();
 
   return (
     <Sidebar collapsible="icon">
@@ -67,6 +71,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-3">
+        {!collapsed && user && (
+          <p className="text-xs text-sidebar-foreground/60 truncate mb-2 px-2">{user.email}</p>
+        )}
+        <Button
+          variant="ghost"
+          size={collapsed ? "icon" : "default"}
+          onClick={signOut}
+          className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          {!collapsed && "Sign Out"}
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
