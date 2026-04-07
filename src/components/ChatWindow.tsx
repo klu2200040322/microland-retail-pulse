@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Mic, MicOff } from "lucide-react";
+import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,43 +9,18 @@ interface Message {
   content: string;
 }
 
-interface ChatWindowProps {
-  voiceEnabled: boolean;
-}
-
-export function ChatWindow({ voiceEnabled }: ChatWindowProps) {
+export function ChatWindow() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hello! I'm your Microland retail assistant. Ask me about inventory, sales, or stock levels." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [listening, setListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const startListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      setListening(false);
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  };
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -122,17 +97,6 @@ export function ChatWindow({ voiceEnabled }: ChatWindowProps) {
               }}
               className="flex gap-2"
             >
-              {voiceEnabled && (
-                <Button
-                  type="button"
-                  variant={listening ? "default" : "outline"}
-                  size="icon"
-                  onClick={startListening}
-                  className="shrink-0"
-                >
-                  {listening ? <Mic className="h-4 w-4 animate-pulse-soft" /> : <Mic className="h-4 w-4" />}
-                </Button>
-              )}
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -153,11 +117,8 @@ export function ChatWindow({ voiceEnabled }: ChatWindowProps) {
 async function answerQuestion(question: string): Promise<string> {
   const q = question.toLowerCase();
 
-  // Best selling item
   if (q.includes("best-selling") || q.includes("best selling") || q.includes("top selling") || q.includes("most sold")) {
-    const { data } = await supabase
-      .from("sales")
-      .select("product_id, units_sold, inventory(product_name)");
+    const { data } = await supabase.from("sales").select("product_id, units_sold, inventory(product_name)");
     if (data && data.length > 0) {
       const totals: Record<string, { name: string; units: number }> = {};
       for (const s of data) {
@@ -171,7 +132,6 @@ async function answerQuestion(question: string): Promise<string> {
     return "I couldn't find sales data to determine the best-selling item.";
   }
 
-  // Low stock
   if (q.includes("low stock") || q.includes("low on stock") || q.includes("reorder") || q.includes("out of stock")) {
     const { data } = await supabase.from("inventory").select("*");
     if (data) {
@@ -183,7 +143,6 @@ async function answerQuestion(question: string): Promise<string> {
     return "I couldn't retrieve inventory data.";
   }
 
-  // Total revenue
   if (q.includes("revenue") || q.includes("total sales") || q.includes("how much")) {
     const { data } = await supabase.from("sales").select("revenue");
     if (data) {
@@ -193,13 +152,11 @@ async function answerQuestion(question: string): Promise<string> {
     return "I couldn't retrieve sales data.";
   }
 
-  // Inventory count
   if (q.includes("how many products") || q.includes("inventory count") || q.includes("total products")) {
     const { count } = await supabase.from("inventory").select("*", { count: "exact", head: true });
     return `We currently have **${count}** products in our inventory.`;
   }
 
-  // Categories
   if (q.includes("categor")) {
     const { data } = await supabase.from("inventory").select("category");
     if (data) {
@@ -208,6 +165,5 @@ async function answerQuestion(question: string): Promise<string> {
     }
   }
 
-  // Default
   return "I can help with questions about inventory levels, low stock alerts, best-selling items, revenue, and product categories. Try asking something like:\n• \"What is our best-selling item?\"\n• \"Which products are low on stock?\"\n• \"What is our total revenue?\"";
 }

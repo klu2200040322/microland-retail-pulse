@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, AlertTriangle, Plus, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,22 @@ export default function Inventory() {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Check if user is admin
+  const { data: isAdmin } = useQuery({
+    queryKey: ["user-role", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin");
+      return (data && data.length > 0) || false;
+    },
+    enabled: !!user,
+  });
 
   const { data: inventory, isLoading } = useQuery({
     queryKey: ["inventory"],
@@ -169,9 +186,11 @@ export default function Inventory() {
                             <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(item.id)} className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {isAdmin && (
+                              <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(item.id)} className="text-destructive hover:text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
